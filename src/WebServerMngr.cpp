@@ -1,11 +1,16 @@
 #include "maincpp.h"
 
 #include <ESPAsyncWebServer.h>
+#include <Ticker.h>
+
 #include <FS.h>
 #include <LittleFS.h>
 
 static AsyncWebServer AsyncWS(80);
+static AsyncWebSocket AsyncWSoc("/testWS");
+
 uint8_t CntrlPin;
+Ticker UpdateTime;
 
 String processor(const String& var){
     String ledState;    
@@ -19,6 +24,25 @@ String processor(const String& var){
         return ledState;
     }
   return String();
+}
+
+void WSocEventHandler(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type,
+             void *arg, uint8_t *data, size_t len) {
+    switch (type) {
+      case WS_EVT_CONNECT:
+        debug_print("WSoc client #%u connected from %s\n", 
+        client->id(), client->remoteIP().toString().c_str());
+        break;
+      case WS_EVT_DISCONNECT:
+        debug_print("WebSocket client #%u disconnected\n", client->id());
+        break;
+      case WS_EVT_DATA:
+        debug_print("WebSocket client #%u EVT_DAATA\n", client->id());
+        break;
+      case WS_EVT_PONG:
+      case WS_EVT_ERROR:
+        break;
+  }
 }
 
 void SetupWSMngr(uint8_t PinToCntrl){
@@ -76,6 +100,17 @@ void SetupWSMngr(uint8_t PinToCntrl){
     AsyncWS.onNotFound([](AsyncWebServerRequest *req){
         req->send(200, "text/plain", "NOT FOUND Send -> / /on /off");
     } );
+
+    // Every second update the clients.
+    AsyncWSoc.onEvent(WSocEventHandler);
+    AsyncWS.addHandler(&AsyncWSoc);
+    UpdateTime.attach(1, [](){
+        time_t Now = time(nullptr);
+        struct tm TimeInfo;
+        localtime_r(&Now, &TimeInfo);
+        AsyncWSoc.textAll(asctime(&TimeInfo));
+        AsyncWSoc.cleanupClients();  
+    });
 }
 
 void StartWS(){

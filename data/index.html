@@ -8,6 +8,7 @@
 </head>
 <body>
   <h2>Test WEB SERVER</h2>
+  <h2 class="time">TIME: <span id="time">%TIME%</span></h2>
   <div class="content">
     <div class="card-grid">
         <div class="card">
@@ -19,5 +20,34 @@
   </div>
   </div>
   </div>
+
+<script>
+  var gateway = `ws://${window.location.hostname}/testWS`;
+  var websocket;
+  
+  window.addEventListener('load', onLoad);
+
+  function initWebSocket() {
+    console.log('Trying to open a WebSocket connection...');
+    websocket = new WebSocket(gateway);
+    websocket.onopen    = onOpen;
+    websocket.onclose   = onClose;
+    websocket.onmessage = onMessage; // <-- add this line
+  }
+  function onOpen(event) {
+    console.log('Connection opened');
+  }
+  function onClose(event) {
+    console.log('Connection closed');
+    setTimeout(initWebSocket, 2000);
+  }
+  function onMessage(event) {
+    document.getElementById('time').innerHTML = event.data;
+  }
+  function onLoad(event) {
+    initWebSocket();
+  }
+</script>
+
 </body>
 </html>
