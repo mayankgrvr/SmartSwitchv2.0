@@ -55,7 +55,7 @@ void loop() {
     /* Notify/Stop clients for wifi lost connectivity if required */
     /* Only house keeping tasks need to do while not connected */
     do {
-      delay(1000);
+      delay(2000);
     }while (!WiFi.isConnected());
 
     /** we are here it means we are connected again **/
