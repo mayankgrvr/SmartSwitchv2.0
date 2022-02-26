@@ -5,10 +5,8 @@
 #include "OTAMngr.h"
 #include "WebServerMngr.h"
 
-#define CNTRL_RLY_01 4
-
 Ticker HeartBeat;
-#define NO_HB
+
 #ifdef NO_HB
 #define HB_ATTACH_NORMAL do { HeartBeat.detach(); \
     digitalWrite(HEARTBEAT_LED, LOW);}while(0);

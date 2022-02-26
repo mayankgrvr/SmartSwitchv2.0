@@ -89,3 +89,8 @@ functional scenario
 1. device to host config server
 2. device to start local webserver
 3. device to control and implement all local webserver requirements
+
+
+debug-
+
+pio device monitor -f esp8266_exception_decoder
